@@ -9,6 +9,7 @@ use Switchyard\Features;
 use Switchyard\Integration\Registry as IntegrationRegistry;
 use Switchyard\Logger\Logger;
 use Switchyard\Plugin as Core;
+use Switchyard\Settings;
 use Switchyard\Sync\GuestSync;
 use Switchyard\Sync\Queue;
 use Switchyard\Sync\TagEngine;
@@ -31,6 +32,48 @@ final class Plugin {
 
 		self::register_integrations( $core, $container );
 		self::register_features( $features, $container );
+
+		add_filter(
+			'switchyard_module_toggles',
+			static fn ( array $modules ): array => $modules + self::module_toggles( $core->get( Settings::class ) )
+		);
+	}
+
+	/**
+	 * @return array<string, array{label: string, enabled: bool, locked: bool}>
+	 */
+	private static function module_toggles( Settings $settings ): array {
+		$labels = array(
+			'enhanced-ecommerce' => __( 'Enhanced ecommerce', 'switchyard-crm-pro' ),
+			'abandoned-cart'     => __( 'Abandoned cart', 'switchyard-crm-pro' ),
+			'media-tools'        => __( 'Media tools', 'switchyard-crm-pro' ),
+			'event-tracking'     => __( 'Event tracking', 'switchyard-crm-pro' ),
+			'logins'             => __( 'Login tracking', 'switchyard-crm-pro' ),
+			'multisite-sync'     => __( 'Multisite sync', 'switchyard-crm-pro' ),
+		);
+
+		$toggles = array();
+
+		foreach ( $labels as $slug => $label ) {
+			$chosen    = ! $settings->is_switched_off( 'disabled_modules', $slug );
+			$effective = self::is_enabled( $settings, $slug );
+
+			$toggles[ $slug ] = array(
+				'label'   => $label,
+				'enabled' => $effective,
+				'locked'  => $effective !== $chosen,
+			);
+		}
+
+		return $toggles;
+	}
+
+	private static function is_enabled( Settings $settings, string $slug ): bool {
+		return (bool) apply_filters(
+			'switchyard_pro_enable_feature',
+			! $settings->is_switched_off( 'disabled_modules', $slug ),
+			$slug
+		);
 	}
 
 	private static function register_integrations( Core $core, Container $container ): void {
@@ -59,6 +102,8 @@ final class Plugin {
 	}
 
 	private static function register_features( Features $features, Container $container ): void {
+		$settings = $container->get( Settings::class );
+
 		$built = array(
 			'enhanced-ecommerce' => new Feature\EnhancedEcommerce(
 				$container->get( \Switchyard\Crm\ProviderRegistry::class ),
@@ -94,7 +139,7 @@ final class Plugin {
 		);
 
 		foreach ( $built as $slug => $feature ) {
-			if ( ! apply_filters( 'switchyard_pro_enable_feature', true, $slug ) ) {
+			if ( ! self::is_enabled( $settings, $slug ) ) {
 				continue;
 			}
 
