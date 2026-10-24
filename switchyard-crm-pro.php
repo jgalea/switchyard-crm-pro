@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Switchyard Pro
- * Plugin URI:        https://jeangalea.com/switchyard-crm
+ * Plugin URI:        https://github.com/jgalea/switchyard-crm-pro
  * Description:       LMS, membership and advanced ecommerce features for Switchyard.
  * Version:           1.0.0
  * Requires at least: 6.4
