@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name:       Switchyard Pro
+ * Plugin Name:       Switchyard CRM Sync and Access PRO
  * Plugin URI:        https://github.com/jgalea/switchyard-crm-pro
  * Description:       LMS, membership and advanced ecommerce features for Switchyard.
- * Version:           1.1.0
+ * Version:           1.1.1
  * Requires at least: 6.4
  * Requires PHP:      8.1
  * Requires Plugins:  switchyard-crm
@@ -19,7 +19,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-const SWITCHYARD_PRO_VERSION = '1.1.0';
+const SWITCHYARD_PRO_VERSION = '1.1.1';
 
 define( 'SWITCHYARD_PRO_FILE', __FILE__ );
 define( 'SWITCHYARD_PRO_DIR', plugin_dir_path( __FILE__ ) );
